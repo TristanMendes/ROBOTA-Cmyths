@@ -107,16 +107,6 @@ else
 }
 return state;
 } 
-/*int detect_collision(perso *p, entite* e){
-  if (e->col==0){
-if ((p->position_perso.x + p->position_perso. w< e->entite_pos. x) || (p->position_perso.x> e->entite_pos. x + e->entite_pos. w) ||
-(p->position_perso.y + p->position_perso.h< e->entite_pos. y) || (p->position_perso.y> e->entite_pos. y + e->entite_pos. h ))
-e->col= 0;
-else
-e->col=1;
-}
-return e->col;
-}*/
 
 
 
