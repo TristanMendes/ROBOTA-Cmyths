@@ -1,45 +1,52 @@
 #ifndef FONCTIONS_H_INCLUDED
 #define FONCTIONS_H_INCLUDED
 
+//structure personnage
+typedef struct
+{
+	SDL_Rect positionPerso;
+	SDL_Surface *imagePerso;
+}personnage;
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-#include <SDL/SDL_ttf.h>
-#include <SDL/SDL_mixer.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Mini Map
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//minimap
+//structure minimap
 typedef struct
 {
 	SDL_Surface *imageMiniature;
 	SDL_Rect posMinimap;
-	SDL_Surface *hero;
-	SDL_Rect posHero;
-	SDL_Surface ennemi;
-	SDL_Rect posEnnemi;
 }miniMap;
+//Fonctions mini map
+void initmap(miniMap *m);
+void afficherminimap(miniMap m, SDL_Surface *screen);
+void MAJMinimap(personnage *perso, miniMap *m, SDL_Rect positionCamera, int redimensionnement);
 
-void initMap(miniMap *m);
-void afficherMap(miniMap m, SDL_Surface *screen);
-SDL_Rect MAJMinimap(SDL_RECT posHero, int redimmensionnement);
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Gestionnaire de temps
-
-void afficherTemps(init *temps);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//collision parfaite 
+//Fonctions collision perfect pixel
+SDL_Color GetPixel(SDL_Surface *background, int x, int y);
+int collisionPP(personnage p, SDL_Surface *backgroundMasque);
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Collision perfect pixel
-int collisionPerfectPixel(personne p, background b, char *masque);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//IA2
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//gestion du temps
+//structure temps
+typedef struct temps
+{
+	SDL_Surface *texte;
+	SDL_Rect position;
 
-int IA(grille g, int joueurProgramme);
+	TTF_Font *police;
+
+	char entree[100];
+	int secondesEcoulees;
+	SDL_Color couleurBlanche;
+	time_t t1, t2;
+	int m, s;
+} temps;
+//Fonctions gestion du temps
+void initialiser_temps(temps *t);
+void afficher_temps(temps *t, SDL_Surface *ecran);
 
 #endif // FONCTIONS_H_INCLUDED
-

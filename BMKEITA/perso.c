@@ -53,6 +53,7 @@ void initPerso(Personne * p)
     p->vie=0;
     p->temps=0;
     p->j=1;
+    p->sauter=-1;
 
 }
 
@@ -74,7 +75,7 @@ p->TEXTE[2].texte=TTF_RenderText_Blended(police,temps, couleur);
 
 if(p->key==2)
 {
-p->postion.y-=70;
+p->postion.y-=145;
 SDL_BlitSurface(p->TEXTE[0].texte,NULL,screen,&p->TEXTE[0].position);
 SDL_BlitSurface(p->TEXTE[1].texte,NULL,screen,&p->TEXTE[1].position);
 SDL_BlitSurface(p->TEXTE[2].texte,NULL,screen,&p->TEXTE[2].position);
@@ -101,6 +102,15 @@ SDL_BlitSurface(p->V[p->etat_vie].image,NULL,screen,&p->V[0].position);
 SDL_BlitSurface(p->imagePerso[p->etat][p->etape[1]],NULL,screen,&p->postion);
 SDL_Flip(screen);
     }
+else if(p->sauter)
+{
+SDL_BlitSurface(p->TEXTE[0].texte,NULL,screen,&p->TEXTE[0].position);
+SDL_BlitSurface(p->TEXTE[1].texte,NULL,screen,&p->TEXTE[1].position);
+SDL_BlitSurface(p->TEXTE[2].texte,NULL,screen,&p->TEXTE[2].position);
+SDL_BlitSurface(p->V[p->etat_vie].image,NULL,screen,&p->V[0].position);
+SDL_BlitSurface(p->imagePerso[0][0], 0, screen, &p->postion);
+SDL_Flip(screen);
+}
 
  TTF_CloseFont(police);  
 }
@@ -108,11 +118,13 @@ SDL_Flip(screen);
 
 void deplacerPerso (Personne *p,Uint32 dt)
 {
-p->dx=(0.5*p->acceleration*dt*dt)+(p->vitesse*dt);
+//p->vitesse+=p->acceleration*dt;//MISE A JOUR DE LA NOUVELLE VITESSE;
+
+p->dx=(0.5*p->acceleration*dt*dt)+(p->vitesse*dt);//CALCUL DE LA DISTANCE ENGENDREE;
 
 if(p->key==1&&p->postion.x<660)
 {
-p->postion.x+=p->dx;
+p->postion.x+=p->dx;//MISE A JOUR DE LA NOUVELLE DISTANCE;
 }
 
 else if(p->key==0)
@@ -125,31 +137,30 @@ p->postion.x-=p->dx;
 void animerPerso (Personne* p)
 {
 
-//
+
 if(p->key==1)
 {
 
 if(p->etape[0]<3)
 {
-	(p->etape[0])++;
+	(p->etape[0])++;//PERMET DE SE DEPLACER DANS LE TABLEAU DES MATRICES(CAS DU DEPLACEMENT 'RIGHT')
 }
 else
 {
-	p->etape[0]=0;
+	p->etape[0]=0;//REVIENT AU PREMIER AU ELEMENT APRES AVOIR PARCOURU LA MATRICE DES IMAGES
 }
 
 }
-//
 
 else if(p->key==0)
 {
 if(p->etape[1]<3)
 {
-	(p->etape[1])++;
+	(p->etape[1])++;//PERMET DE SE DEPLACER DANS LE TABLEAU DES MATRICES(CAS DU DEPLACEMENT 'LEFT')
 }
 else
 {
-	p->etape[1]=0;
+	p->etape[1]=0;//REVIENT AU PREMIER  ELEMENT APRES AVOIR PARCOURU LA MATRICE DES IMAGES
 }
 
 }
@@ -160,13 +171,13 @@ void updatePerso(Personne *p)
 {
 if(p->key==1&&p->postion.x<660)
 {
-p->score++;
+p->score++;//LE SCORE AUGMENT A CHAQUE FOIS LE PP AVANCE VERS LA DROITE (RIGHT);
 if(p->score==50)
 {
 p->score=0;
-p->vie++;
+p->vie++; //SI SON SCORE ARRIVE A 50, ALORS ON LUI DONNE UNE VIE ET SON SCORE REVIENT A 0 (JUSTE UN ESSAI, PAS DEFINITIF);
 }
-p->temps++;
+p->temps++;//LE TEMPS EVOLUE EGALEMENT AU COURS DU JEU;
 p->j=1;
 }
 
@@ -175,18 +186,20 @@ if(p->vie==5)
 {
 if(p->etat_vie<3)
 {
-p->etat_vie++;
+p->etat_vie++;//LORSQUE SON NOMBRE DE VIE ATTEINT 5, ALORS ON LUI OFFRE UN JOLI COEUR;
 }
 
-p->vie=0;
+p->vie=0;//ET LE NOMBRE DE VIE REVIENT A SON TOUR A 0;
 }
 
-if(p->etat_vie==4)
+if(p->etat_vie==4) //SI etat_vie atteint 4,  CE QUI CORRESPOND A L'IMAGE DU GAME OVER, ALORS ON RECOMMENCE LE JEU A 0;
 {
 p->etat_vie=3;
-SDL_Delay(5000);
+SDL_Delay(1000);
 }
 
+
+//CETTE PARTIE EST FAITE JUSTE POUR VERIFIER SI LE NOMBRE DE COEUR DIMINUE LORS DUNE COLLISSION;
 if(p->postion.x>655&&p->postion.x<660&&p->key==1)
 {
 p->score=0;
@@ -209,6 +222,48 @@ p->postion.x=0;
 
 }
 
+/*
+void sauter(Personne* p,SDL_Surface* screen)
+{
+SDL_Surface *image=NULL,*obstacle=NULL;
+SDL_Rect positionImage,positionObstacle;
+image=IMG_Load("b.png");
+obstacle=IMG_Load("sapin.png");
+positionObstacle.x=400;
+positionObstacle.y=285;
+
+positionImage.x=0;
+positionImage.y=0;
+
+if(p->sauter==1)//S'IL APPUIE SUR LE BOUTON DU SAUT QUI EST S(POUR LE MOMENT);
+{
+
+while(p->postion.y>200) //200 REPRESENTE LE SOMMET DU SAUT;
+{
+p->postion.y-=20;//ON DIMINUE LE Y POUR Q'IL PUISSE MONTER
+p->postion.x+=5;
+SDL_FillRect(screen, 0, SDL_MapRGB(screen->format, 0, 0, 0));
+SDL_BlitSurface(image,NULL,screen,&positionImage);
+SDL_BlitSurface(obstacle,NULL,screen,&positionObstacle);
+afficherPerso(p,screen); //ON AFFICHE LES RESSOURCES A CHAQUE ETAPE DU SAUT;
+SDL_Delay(5);//TEMPS DE PAUSE POUR MIEUX VOIR LETAT DE SAUT ET DE LA COURBE;
+}
+while(p->postion.y<340) //TANT QU'IL N'EST PAS ARRIVÉ A LA POSITION INITIALE(LORS DE LA DESCENTE);
+{p->postion.y+=35; //LE Y AUGMENTE POUR QU'IL PUISSE DESCENDRE, ON AUGMENTE LE Y RAPIDEMENT POURQU'IL DESCEND PLUS VITE QUIL NEST DESCENDU;
+p->postion.x+=5;
+SDL_FillRect(screen, 0, SDL_MapRGB(screen->format, 0, 0, 0));
+SDL_BlitSurface(image,NULL,screen,&positionImage);
+SDL_BlitSurface(obstacle,NULL,screen,&positionObstacle);
+afficherPerso(p,screen);
+SDL_Delay(5);
+}
+
+p->postion.y=345;
+p->sauter=0;
+}
+}
+
+*/
 
 void liberer(Personne *p)
 {
@@ -244,14 +299,111 @@ SDL_FreeSurface(p->TEXTE[2].texte);
 }
 
 
-/*void saut (Personne* p,SDL_Surface *screen)
+void sauter(Personne *p,SDL_Surface *screen)
 {
 
-if(p->key==2)
+#define SCREEN_W 800
+#define SCREEN_H 400
+#define POS_X 100
+#define POS_Y 400
+
+SDL_Surface *image=NULL,*obstacle=NULL;
+SDL_Rect positionImage,positionObstacle;
+image=IMG_Load("b.png");
+obstacle=IMG_Load("sapin.png");
+positionObstacle.x=400;
+positionObstacle.y=285;
+
+positionImage.x=0;
+positionImage.y=0;
+
+double v_x, v_y, v_grav, v_jump, v_air;
+int done=1;
+double b;
+b=p->postion.y;
+  p->postion.y=(-0.004*p->postion.x*p->postion.x)+1; ///lequation de la parabolle;
+    /* initialisation des vitesses */
+    v_grav =0.08;//va représenter l'attraction terrestre.
+    v_jump =-4;//vitesse du saut
+
+    v_air = 1.5;//pas trop compris se que signifiait cette variable
+    v_x = v_air;//vitesse de déplacement dans les airs.
+    v_y = v_jump;
+
+  
+p->postion.y=b;
+    while(done)
 {
 
-p->postion.y-=50;
-SDL_Delay(1000);
-p->postion.y=345;
+if(p->etat==0)
+{
+     v_x=v_air;
+        /* evolution de la position*/
+	
+	
+	
+        p->postion.x += v_x;
+        p->postion.y += v_y;
+ 
+        /* evolution de la vitesse*/
+        v_y += v_grav;//vitesse à la quel le personnage va latéralement monter
+ 
+        /* collisions */
+        if (p->postion.y > POS_Y)//si le perso dépace une certaine hauteur alors on fait redescendre le perso
+            v_y =-v_jump;
+	
+        if (p->postion.x < POS_X || p->postion.x > SCREEN_W - POS_X)
+            v_x = -v_x;
+ 
+ 
+        /* dessin*/ 
+        SDL_FillRect(screen, 0, SDL_MapRGB(screen->format, 0, 0, 0));
+SDL_BlitSurface(image,NULL,screen,&positionImage);
+SDL_BlitSurface(obstacle,NULL,screen,&positionObstacle);
+        afficherPerso(p,screen);
+        SDL_Flip(screen);
+
+if(p->postion.y==b)
+{
+done=0;
 }
-}*/
+}
+else if(p->etat==1)
+{
+
+v_x=-v_air;
+        /* evolution de la position*/
+	
+	
+	
+        p->postion.x += v_x;
+        p->postion.y += v_y;
+ 
+        /* evolution de la vitesse*/
+        v_y += v_grav;//vitesse à la quel le personnage va latéralement monter
+ 
+        /* collisions */
+        if (p->postion.y > POS_Y)//si le perso dépace une certaine hauteur alors on fait redescendre le perso
+            v_y =-v_jump;
+	
+        if (p->postion.x < POS_X || p->postion.x > SCREEN_W - POS_X)
+            v_x = -v_x;
+ 
+ 
+        /* dessin*/ 
+        SDL_FillRect(screen, 0, SDL_MapRGB(screen->format, 0, 0, 0));
+SDL_BlitSurface(image,NULL,screen,&positionImage);
+SDL_BlitSurface(obstacle,NULL,screen,&positionObstacle);
+        afficherPerso(p,screen);
+        SDL_Flip(screen);
+   
+if(p->postion.y==b)
+{
+done=0;
+}
+}
+
+} 
+p->sauter=0;
+}
+

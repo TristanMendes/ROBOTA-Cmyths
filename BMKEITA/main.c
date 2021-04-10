@@ -24,10 +24,13 @@ screen=SDL_SetVideoMode(800,400,32,SDL_HWSURFACE|SDL_DOUBLEBUF);
 obstacle=IMG_Load("sapin.png");
 image=IMG_Load("b.png");
 
-positionObstacle.x=680;
+positionObstacle.x=400;
 positionObstacle.y=285;
 positionImage.x=0;
 positionImage.y=0;
+
+    p.posMarioRel.x =p.postion.x;
+    p.posMarioRel.y =p.postion.y;
 
 
 int continuer=1;
@@ -72,11 +75,17 @@ else if(evenement.key.keysym.sym==SDLK_UP)
 //p.acceleration+=0.005;
 p.key=2;
 }
-else if(evenement.key.keysym.sym==SDLK_a)
+else if(evenement.key.keysym.sym==SDLK_a)//acceleration
 {
 p.acceleration+=0.005;
 }
-else if(evenement.key.keysym.sym==SDLK_d)
+else if(evenement.key.keysym.sym==SDLK_d)//sauter 
+{
+
+p.sauter=1;
+}
+
+else if(evenement.key.keysym.sym==SDLK_r)//ralentir
 {
 if(p.dx>0)
 {
@@ -88,10 +97,12 @@ break;
 }
 deplacerPerso (&p,dt);
 animerPerso (&p);
-//saut (&p,screen);
 updatePerso(&p);
-//SDL_Delay(50);
 
+if(p.sauter==1)
+{
+sauter(&p,screen);
+}
 
 dt=SDL_GetTicks()-t_prev;
 }
@@ -107,4 +118,5 @@ TTF_Quit();
 SDL_Quit();
  return 0;
 }
+
 
